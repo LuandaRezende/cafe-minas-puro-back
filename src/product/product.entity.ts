@@ -7,4 +7,7 @@ export class ProductEntity {
 
     @Column({ type: 'varchar', length: 200, nullable: false })
     name: String;
+
+    @Column({ type: 'date', nullable: false })
+    created_at: Date;
 }

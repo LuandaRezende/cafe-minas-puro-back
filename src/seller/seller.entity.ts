@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { TravelEntity } from '../travel/travel.entity';
 
 @Entity({ name: 'seller' })
 export class SellerEntity {
@@ -10,4 +11,11 @@ export class SellerEntity {
 
     @Column({ type: 'date', nullable: false })
     created_at: Date;
+
+    // @OneToMany(
+    //     type => TravelEntity,
+    //     (post: TravelEntity) => post.id_seller,
+    //     { onUpdate: 'CASCADE', onDelete: 'CASCADE' },
+    //   )
+    //   posts: TravelEntity[];
 }

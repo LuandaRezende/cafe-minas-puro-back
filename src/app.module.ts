@@ -10,6 +10,8 @@ import { ProductModule } from './product/product.module';
 import { ProductEntity } from './product/product.entity';
 import { SellerModule } from './seller/seller.module';
 import { SellerEntity } from './seller/seller.entity';
+import { TravelModule } from './travel/travel.module';
+import { TravelEntity } from './travel/travel.entity';
 
 @Module({
   imports: [
@@ -27,7 +29,8 @@ import { SellerEntity } from './seller/seller.entity';
         entities: [
           AdminsEntity,
           ProductEntity,
-          SellerEntity
+          SellerEntity,
+          TravelEntity
         ],
         synchronize: true,
         logging: false,
@@ -40,6 +43,8 @@ import { SellerEntity } from './seller/seller.entity';
     ProductModule,
 
     SellerModule,
+
+    TravelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
