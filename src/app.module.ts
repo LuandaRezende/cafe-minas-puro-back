@@ -12,6 +12,10 @@ import { SellerModule } from './seller/seller.module';
 import { SellerEntity } from './seller/seller.entity';
 import { TravelModule } from './travel/travel.module';
 import { TravelEntity } from './travel/travel.entity';
+import { LoadsModule } from './loads/loads.module';
+import { LoadsEntity } from './loads/loads.entity';
+import { ClientsModule } from './clients/clients.module';
+import { ClientsEntity } from './clients/clients.entity';
 
 @Module({
   imports: [
@@ -30,7 +34,9 @@ import { TravelEntity } from './travel/travel.entity';
           AdminsEntity,
           ProductEntity,
           SellerEntity,
-          TravelEntity
+          TravelEntity,
+          LoadsEntity,
+          ClientsEntity
         ],
         synchronize: true,
         logging: false,
@@ -45,6 +51,10 @@ import { TravelEntity } from './travel/travel.entity';
     SellerModule,
 
     TravelModule,
+
+    LoadsModule,
+
+    ClientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

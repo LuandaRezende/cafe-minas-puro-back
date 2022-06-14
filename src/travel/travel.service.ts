@@ -52,6 +52,7 @@ export class TravelService {
 
     async getSellerById(id: number): Promise<any> {
         const seller = await this.findSellerById(id);
+        
 
         console.log('service seller', seller);
 
