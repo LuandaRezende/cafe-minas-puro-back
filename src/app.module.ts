@@ -16,6 +16,8 @@ import { LoadsModule } from './loads/loads.module';
 import { LoadsEntity } from './loads/loads.entity';
 import { ClientsModule } from './clients/clients.module';
 import { ClientsEntity } from './clients/clients.entity';
+import { PaymentModule } from './payment/payment.module';
+import { PaymentEntity } from './payment/payment.entity';
 
 @Module({
   imports: [
@@ -36,7 +38,8 @@ import { ClientsEntity } from './clients/clients.entity';
           SellerEntity,
           TravelEntity,
           LoadsEntity,
-          ClientsEntity
+          ClientsEntity,
+          PaymentEntity
         ],
         synchronize: true,
         logging: false,
@@ -55,6 +58,8 @@ import { ClientsEntity } from './clients/clients.entity';
     LoadsModule,
 
     ClientsModule,
+
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
