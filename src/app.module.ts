@@ -18,6 +18,10 @@ import { ClientsModule } from './clients/clients.module';
 import { ClientsEntity } from './clients/clients.entity';
 import { PaymentModule } from './payment/payment.module';
 import { PaymentEntity } from './payment/payment.entity';
+import { SaleModule } from './sale/sale.module';
+import { SaleEntity } from './sale/sale.entity';
+import { SaleProductModule } from './sale_product/sale_product.module';
+import { SaleProductEntity } from './sale_product/sale_product.entity';
 
 @Module({
   imports: [
@@ -39,7 +43,9 @@ import { PaymentEntity } from './payment/payment.entity';
           TravelEntity,
           LoadsEntity,
           ClientsEntity,
-          PaymentEntity
+          PaymentEntity,
+          SaleEntity,
+          SaleProductEntity
         ],
         synchronize: true,
         logging: false,
@@ -60,6 +66,10 @@ import { PaymentEntity } from './payment/payment.entity';
     ClientsModule,
 
     PaymentModule,
+
+    SaleModule,
+
+    SaleProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
