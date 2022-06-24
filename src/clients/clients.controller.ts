@@ -15,4 +15,9 @@ export class ClientsController {
     async getAllClients() {
         return await this.clientsService.getAll();
     }
+
+    @Get('/get/pending-customer')
+    async getPendingCustomer() {
+        return await this.clientsService.getPendingCustomer();
+    }
 }

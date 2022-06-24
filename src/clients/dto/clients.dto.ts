@@ -9,5 +9,6 @@ export class ClientsDto {
     number: Number;
     district: String;
     city: String;
+    last_sale: String;
     created_at: String;
 }

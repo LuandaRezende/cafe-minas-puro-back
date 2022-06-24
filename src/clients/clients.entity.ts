@@ -34,6 +34,9 @@ export class ClientsEntity {
     district: String;
 
     @Column({ type: 'varchar', length: 200, nullable: false })
+    last_sale: String;
+
+    @Column({ type: 'varchar', length: 200, nullable: false })
     city: String;
 
     @Column({ type: 'date', nullable: false })
