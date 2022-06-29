@@ -32,6 +32,11 @@ export class SaleController {
         return await this.saleService.getProductsSaleModal(idClient, idSeller);
     }
 
+    @Get('/data/dashboard/:idSeller')
+    async getDataDashboard(@Param('idSeller') idSeller: number) {
+        return await this.saleService.getDataDashboard(idSeller);
+    }
+
     @Delete('delete/:id')
     async deleteSale(@Param('id') id: number){
         return await this.saleService.deleteSale(id)

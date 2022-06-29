@@ -23,6 +23,12 @@ export class SaleEntity {
     form_payment: String;
 
     @Column({ type: 'varchar', length: 200, nullable: false })
+    percentual: String;
+
+    @Column({ type: 'varchar', length: 200, nullable: false })
+    comission: String;
+
+    @Column({ type: 'varchar', length: 200, nullable: false })
     total: String;
 
     @Column({ type: 'number', nullable: true })

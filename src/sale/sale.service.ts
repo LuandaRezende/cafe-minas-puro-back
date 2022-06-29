@@ -49,6 +49,56 @@ export class SaleService {
         return listHistorySale;
     }
 
+    async getDataDashboard(idSeller: number){
+        const graphOne = await this.saleRepository.query(`select s.name, s.id_seller, gasoline, lunch, other, sum(t.gasoline)+(t.lunch)+(t.other) as totalGasto from seller s join travel t on t.id_seller = s.id_seller where s.id_seller = ${idSeller};`)
+
+        const graphTwo = []
+        const diffVale = await this.saleRepository.query(`select *, sum(p.amount_paid) as totalVista from payment p where p.id_seller = ${idSeller} and p.form_payment <> 'vale';`)
+        const equalVale = await this.saleRepository.query(`select *, sum(p.amount_paid) as totalVale from payment p where p.id_seller = ${idSeller} and p.form_payment = 'vale';`)
+        const dataGraphTwo = {
+            vista: diffVale[0].totalVista,
+            vale: equalVale[0].totalVale,
+            total: Number(diffVale[0].totalVista) + Number(equalVale[0].totalVale)
+        }
+        graphTwo.push(dataGraphTwo)
+
+
+        const graphThree = [];
+        const diffValeSale = await this.saleRepository.query(`select *, sum(s.total) as totalSaleVista from sale s where s.id_seller = ${idSeller} and s.form_payment <> 'vale';`)
+        const equalValeSale = await this.saleRepository.query(`select *, sum(s.total) as totalVale from sale s where s.id_seller = ${idSeller} and s.form_payment = 'vale';`)
+        const dataGraphThree = {
+            vista: diffValeSale[0].totalSaleVista,
+            vale: equalValeSale[0].totalVale,
+            total: Number(diffValeSale[0].totalSaleVista) + Number(equalValeSale[0].totalVale)
+        }
+        graphThree.push(dataGraphThree)
+
+        const dataGraphFour = await this.saleRepository.query(`select count(s.id_seller) as quantitySale from sale s
+        where s.id_seller = ${idSeller};`);
+
+        const dataGraphFive = await this.saleRepository.query(`select *, sum(total) as totalSum from sale s
+        where s.id_seller = ${idSeller}
+        group by s.form_payment;`);
+
+        let totalGraphFive = 0;
+
+        let dataGraphFiveTreatment = [];
+
+        for(let i = 0; i < dataGraphFive.length; i++){
+
+            dataGraphFiveTreatment.push({
+                name: dataGraphFive[i].form_payment,
+                data: [Number(dataGraphFive[i].total)]
+            })
+
+            totalGraphFive = Number(totalGraphFive) + Number(dataGraphFive[i].total);
+        }
+
+        dataGraphFiveTreatment.push({name: 'total', data: [totalGraphFive]})
+
+        return {graphOne, graphTwo, graphThree, dataGraphFour, dataGraphFiveTreatment, totalLastGraph: totalGraphFive};
+    }
+
     async getAllSalesMade(){
         const listAllSalesMade = await this.saleRepository.query('select c.corporate_name, sv.name, sv.id_seller, c.id_client, s.id_sale, total from sale s join clients c on c.id_client = s.id_client join seller sv on sv.id_seller = s.id_seller;')
 

@@ -5,6 +5,8 @@ export class SaleDto {
     custom_paid: String;
     form_payment: String;
     total: String;
+    percentual: String;
+    comission: String;
     id_seller: Number;
     id_client: Number;
     products: Array<Object>;

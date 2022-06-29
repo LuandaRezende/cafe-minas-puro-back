@@ -22,6 +22,8 @@ import { SaleModule } from './sale/sale.module';
 import { SaleEntity } from './sale/sale.entity';
 import { SaleProductModule } from './sale_product/sale_product.module';
 import { SaleProductEntity } from './sale_product/sale_product.entity';
+import { MonthClosureModule } from './month_closure/month_closure.module';
+import { MonthClosureEntity } from './month_closure/month_closure.entity';
 
 @Module({
   imports: [
@@ -45,7 +47,8 @@ import { SaleProductEntity } from './sale_product/sale_product.entity';
           ClientsEntity,
           PaymentEntity,
           SaleEntity,
-          SaleProductEntity
+          SaleProductEntity,
+          MonthClosureEntity
         ],
         synchronize: true,
         logging: false,
@@ -70,6 +73,8 @@ import { SaleProductEntity } from './sale_product/sale_product.entity';
     SaleModule,
 
     SaleProductModule,
+
+    MonthClosureModule,
   ],
   controllers: [AppController],
   providers: [AppService],
