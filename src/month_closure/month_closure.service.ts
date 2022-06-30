@@ -17,16 +17,17 @@ export class MonthClosureService {
 
     ) { }
 
-    async findMonthClosure(id: number): Promise<any> {
+    async findMonthClosure(id: number, value): Promise<any> {
         const valuePaid = await this.paymentRepository.query(`select *, sum(amount_paid) as valor_pago from payment p
-        where p.id_seller = ${id}
+        where p.id_seller = ${id} 
         group by p.id_client;`);
 
-        const valueVista = await this.saleRepository.query(`select * from sale s
+        const valueVista = await this.saleRepository.query(`select s.id_seller, s.id_client, s.date, s.form_payment,
+        s.id_sale, s.city, s.custom_paid, s.total, s.percentual, s.comission, p.amount_paid from sale s
         join payment p on p.id_client = s.id_client
-        where s.id_seller = ${id} and s.form_payment <> 'vale'
+        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}' and s.form_payment <> 'vale'
         group by s.id_sale;`);
-
+        
         let array = [];
 
         for(let i = 0; i < valuePaid.length; i++){
@@ -41,8 +42,7 @@ export class MonthClosureService {
                             percentual: valueVista[j].percentual ? valueVista[j].percentual : '-',
                             comission: valueVista[j].comission ? valueVista[j].comission : '', 
                         })
-                    }
-                
+                    }                
             }
         }
 
@@ -62,7 +62,6 @@ export class MonthClosureService {
 
             array.push(value)
         }
-        console.log('dto', dto)
         return array;
     }
 }

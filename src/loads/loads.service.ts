@@ -34,12 +34,13 @@ export class LoadsService {
         return load;
     }
 
-    async findSaleSellerById(id): Promise<LoadsEntity[]> {
+    async findSaleSellerById(id, value): Promise<LoadsEntity[]> {
         const sellerLoad = await this.loadsRepository.createQueryBuilder('Loads')
         .innerJoinAndSelect('Seller', 'seller','seller.id_seller = loads.id_seller')
         .innerJoinAndSelect('Product', 'product','product.id_product = loads.id_product')
         .select('Seller.name as name, Product.name as product, Loads.quantity, Loads.created_at')
         .where(`Seller.id_seller = ${id}`)
+        .andWhere(`loads.created_at BETWEEN '${value.start}' AND '${value.end}'`)
         .getRawMany();
 
         if (!sellerLoad) {
@@ -49,15 +50,13 @@ export class LoadsService {
         return sellerLoad;
     }
 
-    async getSellerById(id: number): Promise<any> {
+    async getSellerById(id: number, value): Promise<any> {
         const load = await this.findSellerById(id);
-
-        console.log('service seller', load);
 
         if(load){
           console.log(' Carga deste vendedor encontrada!! ');
 
-          const loadSeller = await this.findSaleSellerById(load.id_seller);
+          const loadSeller = await this.findSaleSellerById(load.id_seller, value);
 
           return loadSeller;
         }
@@ -90,13 +89,6 @@ export class LoadsService {
     //     if (!product) {
     //         throw new NotFoundException('Produto não existe!');
     //     }
-    //     return product;
-    // }
-
-    // async delete(id: number): Promise<any> {
-    //     const product = await this.findById(id);
-    //     await this.productRepository.delete(product);
-    //     console.log(' Produto: ' + product.name + ' deletado com sucesso! ')
     //     return product;
     // }
 

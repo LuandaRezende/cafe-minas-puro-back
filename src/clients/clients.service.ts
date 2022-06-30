@@ -21,8 +21,6 @@ export class ClientsService {
 
         await this.clientsRepository.save(client);
 
-        console.log(client)
-
         console.log(' Cliente adicionado com sucesso! ');
 
         return client;

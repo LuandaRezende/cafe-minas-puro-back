@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { LoadsDto } from './dto/loads.dto';
 import { LoadsService } from './loads.service';
 
@@ -12,8 +12,12 @@ export class LoadsController {
     }
 
     @Get('/get-seller/:id')
-    async getSellerById(@Param('id') id: number) {
-        return await this.loadsService.getSellerById(id)
+    async getSellerById(@Param('id') id: number, @Query() query) {
+        const dates = {
+            start: query.startDate.concat('T00:00:00.000Z'),
+            end: query.endDate.concat('T23:59:59.999Z')
+        }
+        return await this.loadsService.getSellerById(id, dates)
     }
 
     @Get('/get-all')

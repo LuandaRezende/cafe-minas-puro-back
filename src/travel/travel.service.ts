@@ -20,8 +20,6 @@ export class TravelService {
 
         await this.travelRepository.save(expense);
 
-        console.log(expense)
-
         console.log(' Gasto adicionado com sucesso! ');
 
         return expense;
@@ -35,7 +33,7 @@ export class TravelService {
         return seller;
     }
 
-    async findSaleSellerById(id): Promise<TravelEntity[]> {
+    async findSaleSellerById(id, value): Promise<TravelEntity[]> {
         const expense = await this.travelRepository.find({id_seller: id});
 
         if (!expense) {
@@ -43,23 +41,22 @@ export class TravelService {
         }
 
         const sellerExpense = await this.sellerRepository.createQueryBuilder('Seller')
-        .innerJoinAndSelect('Travel', 'travel','travel.id_seller = Seller.id_seller').where(`Seller.id_seller = ${id}`)
+        .innerJoinAndSelect('Travel', 'travel','travel.id_seller = Seller.id_seller')
+        .where(`Seller.id_seller = ${id}`)
+        .andWhere(`travel.created_at BETWEEN '${value.start}' AND '${value.end}'`)
         .select('Seller.name as name, gasoline, lunch, Travel.created_at, other, Seller.id_seller' )
         .getRawMany();
 
         return sellerExpense;
     }
 
-    async getSellerById(id: number): Promise<any> {
+    async getSellerById(id: number, value) {
         const seller = await this.findSellerById(id);
         
-
-        console.log('service seller', seller);
-
         if(seller){
           console.log(' Vendedor encontrado!! ');
 
-          const expenseSeller = await this.findSaleSellerById(seller.id_seller);
+          const expenseSeller = await this.findSaleSellerById(seller.id_seller, value);
 
           return expenseSeller;
         }

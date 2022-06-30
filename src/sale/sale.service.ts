@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClientsRepository } from 'src/clients/clients.repository';
+import { PaymentRepository } from 'src/payment/payment.repository';
 import { ProductRepository } from 'src/product/product.repository';
 import { SaleProductDto } from 'src/sale_product/dto/sale_product.dto';
 import { SaleProductRepository } from 'src/sale_product/sale_product.repository';
+import { SellerRepository } from 'src/seller/seller.repository';
 import { SaleDto } from './dto/sale.dto';
 import { SaleEntity } from './sale.entity';
 import { SaleRepository } from './sale.repository';
@@ -15,7 +17,9 @@ export class SaleService {
         private saleRepository: SaleRepository,
         private saleProductRepository: SaleProductRepository,
         private productRepository: ProductRepository,
-        private clientsRepository: ClientsRepository
+        private sellerRepository: SellerRepository,
+        private clientsRepository: ClientsRepository,
+        private paymentRepository: PaymentRepository
     ) { }
 
     async createSale(dtoSale: SaleDto): Promise<any> {
@@ -49,12 +53,23 @@ export class SaleService {
         return listHistorySale;
     }
 
-    async getDataDashboard(idSeller: number){
-        const graphOne = await this.saleRepository.query(`select s.name, s.id_seller, gasoline, lunch, other, sum(t.gasoline)+(t.lunch)+(t.other) as totalGasto from seller s join travel t on t.id_seller = s.id_seller where s.id_seller = ${idSeller};`)
+    async getDataDashboard(idSeller: number, value){
+        
+        //total gasto no dia
+        const graphOne = await this.sellerRepository.query(`select *, sum(t.gasoline) as totalGasoline, sum(t.lunch) as totalTravel, sum(t.other) as totalOther,
+        sum(t.gasoline)+ sum(t.lunch)+ sum(t.other) as totalGasto from seller s
+            join travel t on t.id_seller = s.id_seller where s.id_seller = 2
+            and t.created_at BETWEEN '${value.start}' AND '${value.end}'`);
 
+
+        //entradas recebidas
         const graphTwo = []
-        const diffVale = await this.saleRepository.query(`select *, sum(p.amount_paid) as totalVista from payment p where p.id_seller = ${idSeller} and p.form_payment <> 'vale';`)
-        const equalVale = await this.saleRepository.query(`select *, sum(p.amount_paid) as totalVale from payment p where p.id_seller = ${idSeller} and p.form_payment = 'vale';`)
+        const diffVale = await this.saleRepository.query(`select *, sum(p.amount_paid) as totalVista from payment p where 
+        p.id_seller = ${idSeller} and p.date BETWEEN '${value.start}' AND '${value.end}' 
+        and p.form_payment <> 'vale';`)
+        const equalVale = await this.saleRepository.query(`select *, sum(p.amount_paid) as totalVale from payment p where 
+        p.id_seller = ${idSeller} and p.date BETWEEN '${value.start}' AND '${value.end}'
+         and p.form_payment = 'vale';`)
         const dataGraphTwo = {
             vista: diffVale[0].totalVista,
             vale: equalVale[0].totalVale,
@@ -63,9 +78,14 @@ export class SaleService {
         graphTwo.push(dataGraphTwo)
 
 
+        //entradas realizadas
         const graphThree = [];
-        const diffValeSale = await this.saleRepository.query(`select *, sum(s.total) as totalSaleVista from sale s where s.id_seller = ${idSeller} and s.form_payment <> 'vale';`)
-        const equalValeSale = await this.saleRepository.query(`select *, sum(s.total) as totalVale from sale s where s.id_seller = ${idSeller} and s.form_payment = 'vale';`)
+        const diffValeSale = await this.paymentRepository.query(`select *, sum(s.total) as totalSaleVista from sale s 
+        where s.id_seller = ${idSeller} and s.date BETWEEN '${value.start}' AND '${value.end}' 
+        and s.form_payment <> 'vale';`)
+        const equalValeSale = await this.paymentRepository.query(`select *, sum(s.total) as totalVale from sale s 
+        where s.id_seller = ${idSeller} and s.date BETWEEN '${value.start}' AND '${value.end}' 
+        and s.form_payment = 'vale';`)
         const dataGraphThree = {
             vista: diffValeSale[0].totalSaleVista,
             vale: equalValeSale[0].totalVale,
@@ -73,11 +93,14 @@ export class SaleService {
         }
         graphThree.push(dataGraphThree)
 
+        //quantidade de vendas
         const dataGraphFour = await this.saleRepository.query(`select count(s.id_seller) as quantitySale from sale s
-        where s.id_seller = ${idSeller};`);
+        where s.id_seller = ${idSeller} and s.date BETWEEN '${value.start}' AND '${value.end}'`);
 
+        //total de vendas realizadas
         const dataGraphFive = await this.saleRepository.query(`select *, sum(total) as totalSum from sale s
         where s.id_seller = ${idSeller}
+        and s.date BETWEEN '${value.start}' AND '${value.end}'
         group by s.form_payment;`);
 
         let totalGraphFive = 0;
@@ -105,8 +128,10 @@ export class SaleService {
         return listAllSalesMade;
     }
 
-    async getSalesMadeBySeller(id: number){
-        const listSalesMadeBySeller = await this.saleRepository.query(`select c.corporate_name, sv.name, sum(s.total) as total, s.id_sale, c.id_client, sv.id_seller from sale s join clients c on c.id_client = s.id_client join seller sv on sv.id_seller = s.id_seller where sv.id_seller = ${id} group by s.id_client;`)
+    async getSalesMadeBySeller(id: number, value){
+        const listSalesMadeBySeller = await this.saleRepository.query(`select c.corporate_name, sv.name, s.date, sum(s.total) as total, s.id_sale, c.id_client, sv.id_seller from 
+        sale s join clients c on c.id_client = s.id_client join seller sv on sv.id_seller = s.id_seller
+        where sv.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}' group by s.id_client;`);
 
         return listSalesMadeBySeller;
     }
