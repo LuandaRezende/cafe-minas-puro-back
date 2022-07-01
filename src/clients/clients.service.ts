@@ -21,7 +21,7 @@ export class ClientsService {
 
         await this.clientsRepository.save(client);
 
-        console.log(' Cliente adicionado com sucesso! ');
+        // console.log(' Cliente adicionado com sucesso! ');
 
         return client;
     }
@@ -29,9 +29,9 @@ export class ClientsService {
     async getAll(): Promise<ClientsEntity[]> {
         const listClients = await this.clientsRepository.find();
 
-        if (listClients.length === 0) {
-            throw new NotFoundException({ message: 'Lista vazia' })
-        }
+        // if (listClients.length === 0) {
+        //     throw new NotFoundException({ message: 'Lista vazia' })
+        // }
 
         return listClients;
     }

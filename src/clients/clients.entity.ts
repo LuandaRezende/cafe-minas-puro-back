@@ -22,10 +22,10 @@ export class ClientsEntity {
     cnpj: String;
 
     @Column({ type: 'varchar', length: 200, nullable: false })
-    responsibleName: String;
+    responsible_name: String;
     
     @Column({ type: 'varchar', length: 200, nullable: false })
-    publicPlace: String;
+    public_place: String;
 
     @Column({ type: 'integer', nullable: false })
     number: Number;

@@ -18,32 +18,71 @@ export class MonthClosureService {
     ) { }
 
     async findMonthClosure(id: number, value): Promise<any> {
-        const valuePaid = await this.paymentRepository.query(`select *, sum(amount_paid) as valor_pago from payment p
-        where p.id_seller = ${id} 
-        group by p.id_client;`);
+        const allSales = await this.saleRepository.query(`select *, sum(s.total) as inCash from sale s
+        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}'
+        group by s.id_sale;`);
 
-        const valueVista = await this.saleRepository.query(`select s.id_seller, s.id_client, s.date, s.form_payment,
+        const fiado = await this.saleRepository.query(`select s.id_seller, s.id_client, s.date, s.form_payment,
         s.id_sale, s.city, s.custom_paid, s.total, s.percentual, s.comission, p.amount_paid from sale s
         join payment p on p.id_client = s.id_client
-        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}' and s.form_payment <> 'vale'
-        group by s.id_sale;`);
-        
+        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}' and s.form_payment = 'vale'
+        group by s.id_sale;`)
+
+        const paid = await this.paymentRepository.query(`select *, sum(p.amount_paid) as total from payment p
+        where p.id_seller = ${id} group by p.id_client;`)
+
         let array = [];
 
-        for(let i = 0; i < valuePaid.length; i++){
-            for(let j = 0; j < valueVista.length; j++){
-                    if(valuePaid[i].id_client !== valueVista[j].id_client){
-                        array.push({
-                            idSale: valueVista[j].id_sale,
-                            amountPaid: valuePaid[i].valor_pago,
-                            date: valueVista[j].date,
-                            inCash: valueVista[j].amount_paid,
-                            total: valueVista[j].total,
-                            percentual: valueVista[j].percentual ? valueVista[j].percentual : '-',
-                            comission: valueVista[j].comission ? valueVista[j].comission : '', 
-                        })
-                    }                
+        for(let i = 0; i < allSales.length; i++){
+            let paid = 0;
+            if(allSales[i].custom_paid === 'true'){
+                paid = allSales[i].inCash;
             }
+
+            array.push({
+                    idSale: allSales[i].id_sale,
+                    date: allSales[i].date,
+                    id_client: allSales[i].id_client,
+                    amountPaid: paid,
+                    inCash: allSales[i].custom_paid === 'true' ? 'Sim' : 'Não',
+                    total: allSales[i].total,
+                    percentual: allSales[i].percentual ? allSales[i].percentual : '-',
+                    comission: allSales[i].comission ? allSales[i].comission : '', 
+            })
+        }
+
+        let found = null;
+
+        if(fiado.length > 0){
+            
+
+                for(let j = 0; j < fiado.length; j++){
+
+                    const achou = array.find(id => id.idSale === fiado[j].id_sale);
+                    const index = array.findIndex(id => id.idSale === fiado[j].id_sale);
+
+
+                    if(achou){
+                        found = achou;
+                        array.splice(index, 1)
+
+                        for(let k = 0; k < paid.length; k++){
+                            if(paid[k].id_client === found.id_client){
+                                array.push({
+                                    idSale: found.idSale,
+                                    date: found.date,
+                                    amountPaid: paid[j].total,
+                                    inCash: paid[j].custom_paid === 'true' ? 'Sim' : 'Não',
+                                    total: found.total,
+                                    percentual: found.percentual ?  found.percentual : '-',
+                                    comission: found.comission ?  found.comission : '', 
+                                })
+                            }
+                        }                        
+                    }
+
+                }
+              
         }
 
         return array;

@@ -24,9 +24,9 @@ export class SellerService {
     async getAllSellers(): Promise<SellerEntity[]> {
         const listSellers = await this.sellerRepository.find();
 
-        if (listSellers.length === 0) {
-            throw new NotFoundException({ message: 'Não tem vendedores cadastrados!' })
-        }
+        // if (listSellers.length === 0) {
+        //     throw new NotFoundException({ message: 'Não tem vendedores cadastrados!' })
+        // }
 
         console.log('Encontrou: ' + listSellers.length + ' vendedores ');
 

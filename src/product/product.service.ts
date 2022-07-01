@@ -17,7 +17,7 @@ export class ProductService {
 
         await this.productRepository.save(product)
 
-        console.log('Produto cadastrado com sucesso!')
+        // console.log('Produto cadastrado com sucesso!')
 
         return product;
     }
@@ -25,9 +25,9 @@ export class ProductService {
     async getAllProducts(): Promise<ProductEntity[]> {
         const listProducts = await this.productRepository.find();
 
-        if (listProducts.length === 0) {
-            throw new NotFoundException({ message: 'Não tem produtos cadastrados!' })
-        }
+        // if (listProducts.length === 0) {
+        //     throw new NotFoundException({ message: 'Não tem produtos cadastrados!' })
+        // }
 
         console.log('Encontrou: ' + listProducts.length + ' produtos ');
 

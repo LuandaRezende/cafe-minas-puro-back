@@ -20,7 +20,7 @@ export class LoadsService {
 
         await this.loadsRepository.save(loads)
 
-        console.log('Carga cadastrado com sucesso!')
+        // console.log('Carga cadastrado com sucesso!')
 
         return loads;
     }
@@ -54,7 +54,7 @@ export class LoadsService {
         const load = await this.findSellerById(id);
 
         if(load){
-          console.log(' Carga deste vendedor encontrada!! ');
+        //   console.log(' Carga deste vendedor encontrada!! ');
 
           const loadSeller = await this.findSaleSellerById(load.id_seller, value);
 

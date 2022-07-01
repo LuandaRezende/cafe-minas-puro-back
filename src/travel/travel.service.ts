@@ -20,7 +20,7 @@ export class TravelService {
 
         await this.travelRepository.save(expense);
 
-        console.log(' Gasto adicionado com sucesso! ');
+        // console.log(' Gasto adicionado com sucesso! ');
 
         return expense;
     }
@@ -54,7 +54,7 @@ export class TravelService {
         const seller = await this.findSellerById(id);
         
         if(seller){
-          console.log(' Vendedor encontrado!! ');
+        //   console.log(' Vendedor encontrado!! ');
 
           const expenseSeller = await this.findSaleSellerById(seller.id_seller, value);
 

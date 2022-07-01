@@ -4,8 +4,8 @@ export class ClientsDto {
     phone: String;
     email: String;
     cnpj: String;
-    responsibleName: String;
-    publicPlace: String;
+    responsible_name: String;
+    public_Place: String;
     number: Number;
     district: String;
     city: String;
