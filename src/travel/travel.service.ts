@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SaleRepository } from 'src/sale/sale.repository';
 import { SellerEntity } from 'src/seller/seller.entity';
 import { SellerRepository } from 'src/seller/seller.repository';
 import { createQueryBuilder } from 'typeorm';
@@ -12,15 +13,31 @@ export class TravelService {
     constructor(
         @InjectRepository(TravelEntity)
         private travelRepository: TravelRepository,
-        private sellerRepository: SellerRepository
+        private sellerRepository: SellerRepository,
+        private saleRepository: SaleRepository
     ) { }
 
     async createTravelExpense(dto: TravelDto): Promise<any> {
-        const expense = this.travelRepository.create(dto);
+        const idClient = dto.id_client;
+        const totalSale = dto.totalSale;
+
+        const idSale = await this.saleRepository.query(`select s.id_sale as id from sale s where id_client = ${idClient} and total = ${totalSale}`)
+
+        const data = {
+            gasoline: dto.gasoline,
+            lunch: dto.lunch,
+            other: dto.other,
+            created_at: dto.created_at,
+            id_seller: dto.id_seller,
+            totalSale: dto.totalSale,
+            id_client: dto.id_client,
+            id_sale: idSale[0].id ? idSale[0].id : 's/ atribuicao de venda',
+            total_spent: dto.total_spent,
+        }
+
+        const expense = this.travelRepository.create(data);
 
         await this.travelRepository.save(expense);
-
-        // console.log(' Gasto adicionado com sucesso! ');
 
         return expense;
     }

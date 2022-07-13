@@ -5,4 +5,6 @@ export class PaymentDto{
     date: Date;
     id_seller: Number;
     id_client: Number;
+    date_sale: Date;
+    id_sale: Number;
 }

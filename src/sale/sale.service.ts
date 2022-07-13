@@ -53,6 +53,25 @@ export class SaleService {
         return listHistorySale;
     }
 
+    async getTotalSale(){
+        const today = new Date();
+        const date = new Date(new Date().setDate(today.getDate() - 15));
+
+        const dayStart = date.getDate();   
+        const monthStart = date.getMonth() + 1;
+        const yearStart = date.getFullYear();
+        const startPeriod = yearStart + '-' + monthStart + '-' + dayStart; 
+
+        const dayEnd = today.getDate();   
+        const monthEnd = today.getMonth() + 1;
+        const yearEnd = today.getFullYear();
+        const endPeriod = yearEnd + '-' + monthEnd +'-' + dayEnd; 
+
+        const allTotalSales = await this.saleRepository.query(`select s.total, s.id_sale from sale s where s.date BETWEEN '${startPeriod}' AND '${endPeriod}';`)
+
+        return allTotalSales;
+    }
+
     async getDataDashboard(idSeller: number, value){
         
         //total gasto no dia
@@ -131,7 +150,7 @@ export class SaleService {
     async getSalesMadeBySeller(id: number, value){
         const listSalesMadeBySeller = await this.saleRepository.query(`select c.corporate_name, sv.name, s.date, sum(s.total) as total, s.id_sale, c.id_client, sv.id_seller from 
         sale s join clients c on c.id_client = s.id_client join seller sv on sv.id_seller = s.id_seller
-        where sv.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}' group by s.id_client;`);
+        where sv.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}'`);
 
         return listSalesMadeBySeller;
     }

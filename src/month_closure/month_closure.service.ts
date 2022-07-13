@@ -18,12 +18,16 @@ export class MonthClosureService {
     ) { }
 
     async findMonthClosure(id: number, value): Promise<any> {
+        // const allSales = await this.saleRepository.query(`select *, sum(s.total) as inCash from sale s
+        // where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}'
+        // group by s.id_sale;`);
+
         const allSales = await this.saleRepository.query(`select *, sum(s.total) as inCash from sale s
-        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}'
-        group by s.id_sale;`);
+        inner join travel t on t.id_sale = s.id_sale
+        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}'`);
 
         const fiado = await this.saleRepository.query(`select s.id_seller, s.id_client, s.date, s.form_payment,
-        s.id_sale, s.city, s.custom_paid, s.total, s.percentual, s.comission, p.amount_paid from sale s
+        s.id_sale, s.city, s.custom_paid, s.total, s.kg_total, s.percentual, s.comission, p.amount_paid from sale s
         join payment p on p.id_client = s.id_client
         where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}' and s.form_payment = 'vale'
         group by s.id_sale;`)
@@ -46,16 +50,16 @@ export class MonthClosureService {
                     amountPaid: paid,
                     inCash: allSales[i].custom_paid === 'true' ? 'Sim' : 'Não',
                     total: allSales[i].total,
+                    totalKg: allSales[i].kg_total ? allSales[i].kg_total : '-',
                     percentual: allSales[i].percentual ? allSales[i].percentual : '-',
-                    comission: allSales[i].comission ? allSales[i].comission : '', 
+                    comission: allSales[i].comission ? allSales[i].comission : 0, 
+                    spent: allSales[i].total_spent ? allSales[i].total_spent: '-'
             })
         }
 
         let found = null;
 
         if(fiado.length > 0){
-            
-
                 for(let j = 0; j < fiado.length; j++){
 
                     const achou = array.find(id => id.idSale === fiado[j].id_sale);
@@ -71,11 +75,13 @@ export class MonthClosureService {
                                 array.push({
                                     idSale: found.idSale,
                                     date: found.date,
-                                    amountPaid: paid[j].total,
-                                    inCash: paid[j].custom_paid === 'true' ? 'Sim' : 'Não',
+                                    amountPaid: paid[k].total,
+                                    inCash: paid[k].custom_paid === 'true' ? 'Sim' : 'Não',
                                     total: found.total,
+                                    totalKg: found.totalKg ? found.totalKg : '-',
                                     percentual: found.percentual ?  found.percentual : '-',
-                                    comission: found.comission ?  found.comission : '', 
+                                    comission: found.comission ?  found.comission : 0, 
+                                    spent: found.spent ? found.spent: '-'
                                 })
                             }
                         }                        
@@ -84,6 +90,8 @@ export class MonthClosureService {
                 }
               
         }
+
+        console.log('allSales', allSales)
 
         return array;
     }   

@@ -31,6 +31,9 @@ export class SaleEntity {
     @Column({ type: 'varchar', length: 200, nullable: false })
     total: String;
 
+    @Column({ type: 'varchar', length: 200, nullable: false })
+    kg_total: String;
+
     @Column({ type: 'number', nullable: true })
     id_seller: Number;
 

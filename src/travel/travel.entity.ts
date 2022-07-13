@@ -1,3 +1,5 @@
+import { ClientsEntity } from 'src/clients/clients.entity';
+import { SaleEntity } from 'src/sale/sale.entity';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { SellerEntity } from '../seller/seller.entity';
 
@@ -15,8 +17,19 @@ export class TravelEntity {
     @Column({ type: 'varchar', length: 200, nullable: false })
     other: String;
 
+    @Column({ type: 'varchar', length: 200, nullable: false })
+    total_spent: String;
+
     @Column({ type: 'date', nullable: false })
     created_at: Date;
+
+    @Column({ type: 'number', nullable: true })
+    id_sale: Number;
+
+    @ManyToOne(() => SaleEntity)
+    @JoinColumn([
+    { name: 'id_sale', referencedColumnName: 'id_sale' },
+    ])
 
     @Column({ type: 'number', nullable: true })
     id_seller: Number;

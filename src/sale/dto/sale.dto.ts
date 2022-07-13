@@ -7,6 +7,7 @@ export class SaleDto {
     total: String;
     percentual: String;
     comission: String;
+    kg_total: String;
     id_seller: Number;
     id_client: Number;
     products: Array<Object>;

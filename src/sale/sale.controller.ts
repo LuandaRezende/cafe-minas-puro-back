@@ -17,6 +17,11 @@ export class SaleController {
         return await this.saleService.getHistorySale();
     }
 
+    @Get('/get-total-sale')
+    async getTotalSale() {
+        return await this.saleService.getTotalSale();
+    }
+
     @Get('/all/sale-made')
     async getSalesMade() {
         return await this.saleService.getAllSalesMade();
