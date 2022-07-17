@@ -77,7 +77,7 @@ export class SaleService {
         //total gasto no dia
         const graphOne = await this.sellerRepository.query(`select *, sum(t.gasoline) as totalGasoline, sum(t.lunch) as totalTravel, sum(t.other) as totalOther,
         sum(t.gasoline)+ sum(t.lunch)+ sum(t.other) as totalGasto from seller s
-            join travel t on t.id_seller = s.id_seller where s.id_seller = 2
+            join travel t on t.id_seller = s.id_seller where s.id_seller = ${idSeller}
             and t.created_at BETWEEN '${value.start}' AND '${value.end}'`);
 
 
