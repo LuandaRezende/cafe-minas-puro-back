@@ -4,6 +4,7 @@ import { PaymentRepository } from 'src/payment/payment.repository';
 import { SaleDto } from 'src/sale/dto/sale.dto';
 import { SaleEntity } from 'src/sale/sale.entity';
 import { SaleRepository } from 'src/sale/sale.repository';
+import { TravelRepository } from 'src/travel/travel.repository';
 import { MonthClosureEntity } from './month_closure.entity';
 import { MonthClosureRepository } from './month_closure.repository';
 
@@ -13,85 +14,94 @@ export class MonthClosureService {
         @InjectRepository(MonthClosureEntity)
         private monthClosureRepository: MonthClosureRepository,
         private saleRepository: SaleRepository,
-        private paymentRepository: PaymentRepository
-
+        private paymentRepository: PaymentRepository,
+        private travelRepository: TravelRepository
     ) { }
 
     async findMonthClosure(id: number, value): Promise<any> {
-        // const allSales = await this.saleRepository.query(`select *, sum(s.total) as inCash from sale s
-        // where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}'
-        // group by s.id_sale;`);
+        const allSales = await this.saleRepository.query(`select * from sale s
+        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}'
+        group by s.id_sale;`);
 
-        const allSales = await this.saleRepository.query(`select *, sum(s.total) as inCash from sale s
-        inner join travel t on t.id_sale = s.id_sale
-        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}'`);
+        const allDebitSeller = await this.paymentRepository.query(`select *, sum(p.amount_paid) as amount_paid from payment p
+        where p.id_seller = ${id} group by p.id_sale;`)
 
-        const fiado = await this.saleRepository.query(`select s.id_seller, s.id_client, s.date, s.form_payment,
-        s.id_sale, s.city, s.custom_paid, s.total, s.kg_total, s.percentual, s.comission, p.amount_paid from sale s
-        join payment p on p.id_client = s.id_client
-        where s.id_seller = ${id} and s.date BETWEEN '${value.start}' AND '${value.end}' and s.form_payment = 'vale'
-        group by s.id_sale;`)
-
-        const paid = await this.paymentRepository.query(`select *, sum(p.amount_paid) as total from payment p
-        where p.id_seller = ${id} group by p.id_client;`)
+        const allTravelExpense = await this.travelRepository.query(`select *, sum(t.total_spent) as total_spent from travel t
+        where t.id_seller = ${id} group by t.id_sale;`)
 
         let array = [];
 
         for(let i = 0; i < allSales.length; i++){
-            let paid = 0;
-            if(allSales[i].custom_paid === 'true'){
-                paid = allSales[i].inCash;
-            }
+            //se pagamento em vale é fiado
+            if(allSales[i].form_payment === 'vale'){
+                //verifica se existe algum pagamento de débito daquele vendedor
+                if(allDebitSeller.length > 0){
+                    for(let j = 0; j < allDebitSeller.length; j++){
+                        //verifica se o if da venda é igual ao id do pagamento de debito caso for, ele subtrai no valor da total da venda
+                        
+                        if(allSales[i].id_sale === allDebitSeller[j].id_sale){
+                                array.push({
+                                    idSale: allSales[i].id_sale,
+                                    date: allSales[i].date,
+                                    amountPaid: allSales[i].total - allDebitSeller[j].amount_paid,
+                                    inCash: allSales[i].custom_paid === 'true' ? 'Sim' : 'Não',
+                                    total: allSales[i].total,
+                                    totalKg: allSales[i].kg_total ? allSales[i].kg_total : '-',
+                                    percentual: allSales[i].percentual ?  allSales[i].percentual : '-',
+                                    comission: allSales[i].comission ?  allSales[i].comission : 0, 
+                                })
+                        }else{
+                            //coloca no array o valor pago como 0 pois nao existe pagamento de debito referente aquela venda 
+                            array.push({
+                                idSale: allSales[i].id_sale,
+                                date: allSales[i].date,
+                                amountPaid: 0,
+                                inCash: allSales[i].custom_paid === 'true' ? 'Sim' : 'Não',
+                                total: allSales[i].total,
+                                totalKg: allSales[i].kg_total ? allSales[i].kg_total : '-',
+                                percentual: allSales[i].percentual ?  allSales[i].percentual : '-',
+                                comission: allSales[i].comission ?  allSales[i].comission : 0, 
+                            })
+                        }
 
-            array.push({
+                    }
+                }else{
+                    array.push({
+                        idSale: allSales[i].id_sale,
+                        date: allSales[i].date,
+                        amountPaid: 0,
+                        inCash: allSales[i].custom_paid === 'true' ? 'Sim' : 'Não',
+                        total: allSales[i].total,
+                        totalKg: allSales[i].kg_total ? allSales[i].kg_total : '-',
+                        percentual: allSales[i].percentual ?  allSales[i].percentual : '-',
+                        comission: allSales[i].comission ?  allSales[i].comission : 0, 
+                    })    
+                }
+            }else{
+                //se nao é em vale é pagamento a vista
+                array.push({
                     idSale: allSales[i].id_sale,
                     date: allSales[i].date,
-                    id_client: allSales[i].id_client,
-                    amountPaid: paid,
+                    amountPaid: allSales[i].total,
                     inCash: allSales[i].custom_paid === 'true' ? 'Sim' : 'Não',
                     total: allSales[i].total,
                     totalKg: allSales[i].kg_total ? allSales[i].kg_total : '-',
-                    percentual: allSales[i].percentual ? allSales[i].percentual : '-',
-                    comission: allSales[i].comission ? allSales[i].comission : 0, 
-                    spent: allSales[i].total_spent ? allSales[i].total_spent: '-'
-            })
+                    percentual: allSales[i].percentual ?  allSales[i].percentual : '-',
+                    comission: allSales[i].comission ?  allSales[i].comission : 0, 
+                })
+            }
         }
 
-        let found = null;
-
-        if(fiado.length > 0){
-                for(let j = 0; j < fiado.length; j++){
-
-                    const achou = array.find(id => id.idSale === fiado[j].id_sale);
-                    const index = array.findIndex(id => id.idSale === fiado[j].id_sale);
-
-
-                    if(achou){
-                        found = achou;
-                        array.splice(index, 1)
-
-                        for(let k = 0; k < paid.length; k++){
-                            if(paid[k].id_client === found.id_client){
-                                array.push({
-                                    idSale: found.idSale,
-                                    date: found.date,
-                                    amountPaid: paid[k].total,
-                                    inCash: paid[k].custom_paid === 'true' ? 'Sim' : 'Não',
-                                    total: found.total,
-                                    totalKg: found.totalKg ? found.totalKg : '-',
-                                    percentual: found.percentual ?  found.percentual : '-',
-                                    comission: found.comission ?  found.comission : 0, 
-                                    spent: found.spent ? found.spent: '-'
-                                })
-                            }
-                        }                        
+        //obtem o gasto da viagem de cada venda
+        for(let a = 0; a < array.length; a++){
+            if(allTravelExpense.length > 0){
+                for(let b = 0; b < allTravelExpense.length; b++){
+                    if(array[a].idSale === allTravelExpense[b].id_sale){
+                        array[a].spent = allTravelExpense[b].total_spent ? allTravelExpense[b].total_spent : 0;
                     }
-
                 }
-              
+            } 
         }
-
-        console.log('allSales', allSales)
 
         return array;
     }   
