@@ -20,8 +20,14 @@ export class TravelService {
     async createTravelExpense(dto: TravelDto): Promise<any> {
         const idClient = dto.id_client;
         const totalSale = dto.totalSale;
+        const dateSale = new Date(dto.date_sale.toString());
 
-        const idSale = await this.saleRepository.query(`select s.id_sale as id from sale s where id_client = ${idClient} and total = ${totalSale}`)
+        const day = dateSale.getDate();   
+        const month = dateSale.getMonth() + 1;
+        const year = dateSale.getFullYear();
+        const date = year + '-' + month + '-' + day; 
+        
+        const idSale = await this.saleRepository.query(`select s.id_sale as id from sale s where id_client = ${idClient} and total = ${totalSale} and date = '${date}'`)
 
         const data = {
             gasoline: dto.gasoline,
@@ -39,7 +45,7 @@ export class TravelService {
 
         await this.travelRepository.save(expense);
 
-        return expense;
+        return dto;
     }
 
     async findSellerById(id: number): Promise<SellerEntity> {

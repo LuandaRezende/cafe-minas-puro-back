@@ -27,7 +27,9 @@ export class ClientsService {
     }
 
     async getAll(): Promise<ClientsEntity[]> {
-        const listClients = await this.clientsRepository.find();
+        const listClients = await this.clientsRepository.find({
+            order: {corporate_name: "ASC"},
+        });
 
         // if (listClients.length === 0) {
         //     throw new NotFoundException({ message: 'Lista vazia' })

@@ -6,6 +6,7 @@ export class TravelDto {
     created_at: String;
     totalSale: String;
     total_spent: String;
+    date_sale: String;
     id_sale: Number;
     id_client: Number;
     id_seller: Number;

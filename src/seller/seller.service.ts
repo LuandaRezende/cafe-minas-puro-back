@@ -16,19 +16,17 @@ export class SellerService {
 
         await this.sellerRepository.save(seller);
 
-        console.log(' Vendedor ' + seller.name + ' criado! ');
+        // console.log(' Vendedor ' + seller.name + ' criado! ');
 
         return seller;
     }
 
     async getAllSellers(): Promise<SellerEntity[]> {
-        const listSellers = await this.sellerRepository.find();
+        const listSellers = await this.sellerRepository.find({
+            order: {name: "ASC"},
+        });
 
-        // if (listSellers.length === 0) {
-        //     throw new NotFoundException({ message: 'Não tem vendedores cadastrados!' })
-        // }
-
-        console.log('Encontrou: ' + listSellers.length + ' vendedores ');
+        // console.log('Encontrou: ' + listSellers.length + ' vendedores ');
 
         return listSellers;
     }
@@ -44,7 +42,7 @@ export class SellerService {
     async delete(id: number): Promise<any> {
         const seller = await this.findById(id);
         await this.sellerRepository.delete(seller);
-        console.log(' Vendedor: ' + seller.name + ' deletado com sucesso! ')
+        // console.log(' Vendedor: ' + seller.name + ' deletado com sucesso! ')
         return seller;
     }
 }

@@ -29,7 +29,7 @@ export class ProductService {
         //     throw new NotFoundException({ message: 'Não tem produtos cadastrados!' })
         // }
 
-        console.log('Encontrou: ' + listProducts.length + ' produtos ');
+        // console.log('Encontrou: ' + listProducts.length + ' produtos ');
 
         return listProducts;
     }
